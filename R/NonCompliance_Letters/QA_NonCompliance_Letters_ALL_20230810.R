@@ -17,7 +17,9 @@
 #   file name change 20220125
 #   updated program to include references for ALL PAC QRP settings
 #   
-#   
+#updated 20240618
+#Update grepl for Influenza and COVID-19
+#
 # The purpose of this program is to read information from the non-compliance 
 # letters in pdf version and create a data.frame
 # This data.frame will be used to quality check the letters generated.
@@ -60,18 +62,18 @@
     format(today, format="%Y%m%d")
     
     #year reference for output file naming --- should match CY or FY of letters
-    year_ref <- "2024"
+    year_ref <- "2025"
     
    
     # control flags
     # each PAC QRP has different calls and setup work
     # when run_[QRP] == 1 the program will run for that setting
     # set to 0 when you do not wish to run for that setting
-    run_HHA <- 1
-    run_Hospice <- 0
-    run_IRF <- 0
-    run_LTCH <- 0
-    run_SNF <- 0
+    run_HHA <- 0
+    run_Hospice <- 1
+    run_IRF <- 1
+    run_LTCH <- 1
+    run_SNF <- 1
     
     # working directory will be location of output - can be same for all setting
     setwd("C:/Users/hsoriano/Documents/Letters/output")
@@ -411,9 +413,9 @@ if(run_HHA == 1){
                                   ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%
         mutate(Failed_CDIFF = grepl("Facility-wide Inpatient Hospital-onset Clostridium difficile Infection (CDI)", V1, 
                                     ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%
-        mutate(Failed_HCPFLU = grepl("Influenza Vaccination Coverage among Healthcare Personnel data", V1, 
+        mutate(Failed_HCPFLU = grepl("Influenza Vaccination Coverage", V1, 
                                     ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%
-        mutate(Failed_HCPCOVID = grepl("Did not submit all required months of complete COVID-19 Vaccination", V1, 
+        mutate(Failed_HCPCOVID = grepl("COVID-19 Vaccination", V1, 
                                      ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%
         mutate(Failed_ASMT = grepl("threshold on the IRF Patient Assessment Instrument (IRF-PAI) reporting", V1, 
                                       ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%
@@ -494,9 +496,9 @@ if(run_HHA == 1){
                                     ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%
         mutate(Failed_CDIFF = grepl("Facility-wide Inpatient Hospital-onset Clostridium difficile Infection (CDI)", V1, 
                                     ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%
-        mutate(Failed_HCPFLU = grepl("Influenza Vaccination Coverage among Healthcare Personnel data", V1, 
+        mutate(Failed_HCPFLU = grepl("Influenza Vaccination Coverage", V1, 
                                      ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%
-        mutate(Failed_HCPCOVID = grepl("Did not submit all required months of complete COVID-19 Vaccination", V1, 
+        mutate(Failed_HCPCOVID = grepl("COVID-19 Vaccination", V1, 
                                        ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%
         mutate(Failed_ASMT = grepl("threshold on the Long-Term Care Data Set (LCDS)", V1, 
                                    ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%
@@ -574,9 +576,9 @@ if(run_HHA == 1){
       
       #find reasons for failure from V1
       snf_letters_reasons <- SNFletters_reduced %>%
-        mutate(Failed_HCPCOVID = grepl("Did not submit all required months of complete COVID-19 Vaccination", V1, 
+        mutate(Failed_HCPCOVID = grepl("COVID-19 Vaccination", V1, 
                                        ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%
-        mutate(Failed_HCPFLU = grepl("Influenza Vaccination Coverage among Healthcare Personnel data", V1, 
+        mutate(Failed_HCPFLU = grepl("Influenza Vaccination Coverage", V1, 
                                      ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%
         mutate(Failed_ASMT = grepl("threshold on the Minimum Data Set (MDS)", V1, 
                                   ignore.case = FALSE, perl = FALSE, fixed = TRUE)) %>%

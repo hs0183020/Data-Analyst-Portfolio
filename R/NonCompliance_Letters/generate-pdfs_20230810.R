@@ -17,22 +17,26 @@ library(fs)
 #    -- which the program expects to be CMS.PNG 
 #    -- in each of the folders below
 
-wd_path <- "C:/Users/hsoriano/Documents/Letters/Output"
-hha_path <- "C:/Users/hsoriano/Documents/Letters/Output/HHA"
-hosp_path <-"C:/Users/hsoriano/Documents/Letters/Output/HOSP"
-ltch_path <- "C:/Users/hsoriano/Documents/Letters/Output/LTCH"
-irf_path <- "C:/Users/hsoriano/Documents/Letters/Output/IRF"
-snf_path <- "C:/Users/hsoriano/Documents/Letters/Output/SNF"
+basepath <- "C:/Users/hsoriano/Documents/Letters/"
+
+input_path <- paste0(basepath,"Input/")
+
+wd_path <-  paste0(basepath,"Output")
+hha_path <- paste0(wd_path,"/HHA")
+hosp_path <- paste0(wd_path,"/HOSP")
+ltch_path <- paste0(wd_path,"/LTCH")
+irf_path <- paste0(wd_path,"/IRF")
+snf_path <- paste0(wd_path,"/SNF")
 
 setwd(wd_path)
 
 # set control flags for selectively running QRP settings
 # use 1 for running the QRP setting letter generation code
 # any other value for NOT running
-run_HHA <- 1
+run_HHA <- 0
 run_HOSP <- 0
-run_LTCH <- 0
-run_IRF <- 0
+run_LTCH <- 1
+run_IRF <- 1
 run_SNF <- 0
 
 # Update with each QRP per FY:
@@ -174,9 +178,9 @@ paste2 <- function(...,sep=", ") {
 if (run_HHA==1){
 cat("Running HHA\n")
 #    This is the LaTeX template for the letters
-templateHHA <- readLines("C:/Users/hsoriano/Documents/Letters/hha_CY2024_EO.tex", warn=FALSE)
+templateHHA <- readLines(paste0(input_path,"hha_CY2024_EO.tex"), warn=FALSE)
 #    This is the Excel workbook containing the noncompliant HHAs
-fnameHHA <- "C:/Users/hsoriano/Documents/Letters/Failed_APU_CY2024_20230830.xlsx"
+fnameHHA <- paste0(input_path,"Failed_APU_CY2024_20230830.xlsx")
 dataHHA <- read.xlsx(fnameHHA, sheet = 3, check.names=TRUE) %>% 
     rename(Internal.Provider.ID = macid,
            State = state_cd) %>%
@@ -213,9 +217,9 @@ file.remove(list.files(pattern="output\\..*"))
 if (run_HOSP==1){
 cat("Running HOSPC\n")
 #    This is the LaTeX template for the letters for Hospice
-templateHOSP <- readLines("C:/Users/hsoriano/Documents/Letters/hospice_FY2024_EO.tex", warn=FALSE)
+templateHOSP <- readLines(paste0(input_path,"hospice_FY2025_EO.tex"), warn=FALSE)
 #    This is the Excel workbook containing the noncompliant Hospices and all needed variables
-fnameHOSP <- "C:/Users/hsoriano/Documents/Letters/PAC-HOSPICE-APU-FY2024-Non-Compliant-List-For-Letters_20230612.xlsx"
+fnameHOSP <- paste0(input_path,"PAC-HOSPICE-APU-FY2025-Non-Compliant-List-For-Letters_20240605.xlsx")
 dataHOSP <- read.xlsx(fnameHOSP, check.names=TRUE) %>% 
   rename(Internal.Provider.ID=File_Name_ID,
          CCN=ccn,
@@ -226,7 +230,7 @@ dataHOSP <- read.xlsx(fnameHOSP, check.names=TRUE) %>%
          Contact.First.Name=contact_first_name,
          Contact.Last.Name=contact_last_name) %>% 
   mutate(setting="HOSPC",
-         f_Name = "FY2024_Non_Compliance_Notification.pdf",
+         f_Name = "FY2025_Non_Compliance_Notification.pdf",
          Contact.First.Name=ifelse(Contact.First.Name=="ADMINISTRATOR",
                                    "ATTN:", toupper(Contact.First.Name)),
          Contact.Last.Name=ifelse(Contact.First.Name=="ATTN:",
@@ -236,11 +240,11 @@ dataHOSP <- read.xlsx(fnameHOSP, check.names=TRUE) %>%
          CCN=str_pad(CCN, 6, pad="0"),
          HIS=ifelse(meet_HIS == "Yes", NA, 
                     "\\\\{Did not achieve a 90\\\\% threshold on the Hospice Item Set (HIS) pay-for-reporting requirement for 
-                    CY 2022 (January 1, 2022-December 31, 2022).\\\\}"),
+                    CY 2023 (January 1, 2023-December 31, 2023).\\\\}"),
          CAHPS=ifelse(meet_CAHPS == "Yes", 
                       NA,
                       "\\\\{Did not collect and successfully submit sufficient monthly CAHPS \\\\textregistered ~Hospice Survey 
-                      data for CY 2022 (January 1, 2022-December 31, 2022).\\\\}")) %>% 
+                      data for CY 2023 (January 1, 2023-December 31, 2023).\\\\}")) %>% 
   rowwise() %>% 
   mutate(reasons=paste(na.omit(c(HIS, CAHPS)),
                        collapse="\\\\\\\\"))
@@ -269,12 +273,12 @@ file.remove(list.files(pattern="output\\..*"))
 if (run_LTCH == 1){
 cat("Running LTCH\n")
 #    This is the LaTeX template for the letters for LTCH
-templateLTCH <- readLines("C:/Users/hsoriano/Documents/Letters/ltch_FY2024_EO.tex", warn=FALSE)
+templateLTCH <- readLines(paste0(input_path,"ltch_FY2025_EO.tex"), warn=FALSE)
 #    This is the Excel workbook containing the noncompliant ltchs and all needed variables
-fnameLTCH <- "C:/Users/hsoriano/Documents/Letters/PAC-LTCH-APU-FY2024-Non-Compliant-List-For-Letters_20230615.xlsx"
+fnameLTCH <- paste0(input_path,"PAC-LTCH-APU-FY2025-Non-Compliant-List-For-Letters_20240613.xlsx")
 dataLTCH <- read.xlsx(fnameLTCH, check.names=TRUE) %>%
   rename(Facility.Name..DBA...Doing.Business.As...Name.=fac_name,
-         CCN=CCN,
+         CCN=ccn,
          Internal.Provider.ID=File_Name_ID,
          Street.Address=st_adr,
          City=city_name,
@@ -289,28 +293,28 @@ dataLTCH <- read.xlsx(fnameLTCH, check.names=TRUE) %>%
          Meet.HCP.Flu.=meet_hcpflu,
          Meet.Asmt=meet_asmt) %>%
   mutate(setting="LTCH",
-         f_Name = "FY2024_Non_Compliance_Notification.pdf",
+         f_Name = "FY2025_Non_Compliance_Notification.pdf",
          Contact.First.Name=ifelse(Contact.First.Name=="ADMINISTRATOR",
                                    "ATTN:", toupper(Contact.First.Name)),
          Contact.Last.Name=ifelse(Contact.First.Name=="ATTN:",
                                   "ADMINISTRATOR", toupper(Contact.Last.Name)),
          Zip.Code=str_pad(Zip.Code, 5, pad="0"),
          CAUTI=ifelse(Meet.CAUTI. == "Yes", NA, 
-                      "\\\\{Did not submit all required months of complete CBE \\\\#0138 National Healthcare Safety Network (NHSN) 
+                      "\\\\{Did not submit all required months of complete CMIT Measure ID \\\\#00459 National Healthcare Safety Network (NHSN)
                       Catheter-Associated Urinary Tract Infection (CAUTI) Outcome Measure data\\\\}"),
          CDI=ifelse(Meet.CDIFF. == "Yes", NA,
-                    "\\\\{Did not submit all required months of complete CBE \\\\#1717 National Healthcare Safety Network (NHSN) 
+                    "\\\\{Did not submit all required months of complete CMIT Measure ID \\\\#00462 National Healthcare Safety Network (NHSN) 
                     Facility-wide Inpatient Hospital-onset \\\\textit{Clostridium difficile} Infection (CDI) Outcome Measure data\\\\}"),
          CLABSI=ifelse(Meet.CLABSI. == "Yes", NA,
-                       "\\\\{Did not submit all required months of complete CBE \\\\#0139 National Healthcare Safety Network (NHSN) 
+                       "\\\\{Did not submit all required months of complete CMIT Measure ID \\\\#00460 National Healthcare Safety Network (NHSN) 
                        Central Line-Associated Bloodstream Infection (CLABSI) Outcome Measure data\\\\}"),
          HCP=ifelse(Meet.HCP.Flu. == "Yes", NA,
-                   "\\\\{Did not submit CBE \\\\#0431 Influenza Vaccination Coverage among Healthcare Personnel data\\\\}"),
+                   "\\\\{Did not submit CMIT Measure ID \\\\#00390 Influenza Vaccination Coverage among Healthcare Personnel data\\\\}"),
          COVID=ifelse(Meet.HCP.Covid. == "Yes", NA,
                     "\\\\{Did not submit all required months of complete COVID-19 Vaccination Coverage among Healthcare Personnel data\\\\}"),
          MEET.Asmt=ifelse(Meet.Asmt == "Yes", NA, 
-                          "\\\\{Did not achieve an 80\\\\% threshold on the Long-Term Care Data Set (LCDS) reporting requirement for 
-                          CY 2022 (Janurary 1, 2022-December 31, 2022).\\\\}")
+                          "\\\\{Did not achieve an  80\\\\% threshold on the Long-Term Care Data Set (LCDS) reporting requirement for 
+                          CY 2023 (Janurary 1, 2023-December 31, 2023).\\\\}")
 
   ) %>% 
   rowwise() %>% 
@@ -330,12 +334,12 @@ file.remove(list.files(pattern="output\\..*"))
 if (run_IRF==1){
 cat("Running IRF\n")
 #    This is the LaTeX template for the letters for IRF
-templateIRF <- readLines("C:/Users/hsoriano/Documents/Letters/irf_FY2024_EO.tex", warn=FALSE)
+templateIRF <- readLines(paste0(input_path,"irf_FY2025_EO.tex"), warn=FALSE)
 #    This is the Excel workbook containing the noncompliant irfs and all needed variables
-fnameIRF <- "C:/Users/hsoriano/Documents/Letters/PAC-IRF-APU-FY2024-Non-Compliant-List-For-Letters_20230613.xlsx"
+fnameIRF <- paste0(input_path,"PAC-IRF-APU-FY2025-Non-Compliant-List-For-Letters_20240613.xlsx")
 
 dataIRF <- read.xlsx(fnameIRF, check.names=TRUE) %>%
-  rename(CCN=CCN,
+  rename(CCN=ccn,
          Internal.Provider.ID=File_Name_ID,
          Street.Address=st_adr,
          Second.Line.Address=addtnl_st_adr,
@@ -351,7 +355,7 @@ dataIRF <- read.xlsx(fnameIRF, check.names=TRUE) %>%
          Meet.HCP.Flu.=meet_hcpflu,
          Meet.Asmt=meet_asmt) %>%
   mutate(setting="IRF",
-         f_Name = "FY2024_Non_Compliance_Notification.pdf",
+         f_Name = "FY2025_Non_Compliance_Notification.pdf",
          Contact.First.Name=ifelse(Contact.First.Name=="ADMINISTRATOR",
                                    "ATTN:", toupper(Contact.First.Name)),
          Contact.Last.Name=ifelse(Contact.First.Name=="ATTN:",
@@ -359,18 +363,18 @@ dataIRF <- read.xlsx(fnameIRF, check.names=TRUE) %>%
          Zip.Code=str_pad(Zip.Code, 5, pad="0"),
          CCN=str_pad(CCN, 6, pad="0"),
          CAUTI=ifelse(Meet.CAUTI. == "Yes", NA, 
-                      "\\\\{Did not submit all required months of complete CBE \\\\#0138 National Healthcare Safety Network (NHSN) 
+                      "\\\\{Did not submit all required months of complete CMIT Measure ID \\\\#00459 National Healthcare Safety Network (NHSN) 
                       Catheter-Associated Urinary Tract Infection (CAUTI) Outcome Measure data\\\\}"),
          CDI=ifelse(Meet.CDIFF. == "Yes", NA, 
-                    "\\\\{Did not submit all required months of complete CBE \\\\#1717 National Healthcare Safety Network (NHSN) 
-                    Facility-wide Inpatient Hospital-onset  \\\\textit{Clostridium difficile} Infection (CDI) Outcome Measure data\\\\}"),
+                    "\\\\{Did not submit all required months of complete CMIT Measure ID \\\\#00462 National Healthcare Safety Network (NHSN) 
+                    Facility-wide Inpatient Hospital-onset \\\\textit{Clostridium difficile} Infection (CDI) Outcome Measure data\\\\}"),
          HCP=ifelse(Meet.HCP.Flu. == "Yes", NA, 
-                        "\\\\{Did not submit CBE \\\\#0431 Influenza Vaccination Coverage among Healthcare Personnel data\\\\}"),
+                        "\\\\{Did not submit CMIT Measure ID \\\\#00390 Influenza Vaccination Coverage among Healthcare Personnel data\\\\}"),
          COVID=ifelse(Meet.HCP.Covid. == "Yes", NA,
                       "\\\\{Did not submit all required months of complete COVID-19 Vaccination Coverage among Healthcare Personnel data\\\\}"),
          MEET.Asmt=ifelse(Meet.Asmt == "Yes", NA, 
                     "\\\\{Did not achieve a 95\\\\% threshold on the IRF Patient Assessment Instrument (IRF-PAI) reporting requirement for 
-                    CY 2022 (January 1, 2022-December 31, 2022).\\\\}")
+                    CY 2023 (January 1, 2023-December 31, 2023).\\\\}")
          ) %>%
   rowwise() %>% 
   mutate(reasons=paste(na.omit(c(CAUTI, CDI, HCP,COVID, MEET.Asmt)),
@@ -388,11 +392,11 @@ file.remove(list.files(pattern="output\\..*"))
 if (run_SNF == 1){
 cat("Running SNF\n")
 #    This is the LaTeX template for the letters for SNF
-templateSNF <- readLines("C:/Users/hsoriano/Documents/Letters/snf_FY2024_EO.tex", warn=FALSE)
+templateSNF <- readLines(paste0(input_path,"snf_FY2025_EO.tex"), warn=FALSE)
 #    This is the Excel workbook containing the noncompliant snfs and all needed variables
-fnameSNF <- "C:/Users/hsoriano/Documents/Letters/PAC-SNF-APU-FY2024-Non-Compliant-List-For-Letters_20230615.xlsx"
+fnameSNF <- paste0(input_path,"PAC-SNF-APU-FY2025-Non-Compliant-List-For-Letters_20240614.xlsx")
 dataSNF <- read.xlsx(fnameSNF, check.names=TRUE) %>%
-  rename(CCN=CCN,
+  rename(CCN=ccn,
          Internal.Provider.ID=File_Name_ID,
          Street.Address=st_adr,
          City=city_name,
@@ -406,7 +410,7 @@ dataSNF <- read.xlsx(fnameSNF, check.names=TRUE) %>%
          Meet.Asmt=meet_asmt ) %>%
   mutate(
          setting="SNF",
-         f_Name = "FY2024_Non_Compliance_Notification.pdf",
+         f_Name = "FY2025_Non_Compliance_Notification.pdf",
          Contact.First.Name=ifelse(Contact.First.Name=="ADMINISTRATOR",
                                    "ATTN:", toupper(Contact.First.Name)),
          Contact.Last.Name=ifelse(Contact.First.Name=="ATTN:",
@@ -416,10 +420,10 @@ dataSNF <- read.xlsx(fnameSNF, check.names=TRUE) %>%
          COVID=ifelse((Meet.HCP.Covid. == "Yes" | Meet.HCP.Covid. == "") , NA,
                       "\\\\{Did not submit all required months of complete COVID-19 Vaccination Coverage among Healthcare Personnel data \\\\}"),
          HCP=ifelse(Meet.HCP.Flu. == "Yes" | Meet.HCP.Flu. == "", NA, 
-                    "\\\\{Did not submit CBE \\\\#0431 Influenza Vaccination Coverage among Healthcare Personnel data\\\\}"),
+                    "\\\\{Did not submit CMIT Measure ID \\\\#00390 Influenza Vaccination Coverage among Healthcare Personnel data\\\\}"),
          MEET.Asmt=ifelse(Meet.Asmt == "Yes", NA, 
                           "\\\\{Did not achieve an 80\\\\% threshold on the Minimum Data Set (MDS) 
-                          reporting requirement for CY 2022 (January 1, 2022-December 31, 2022).\\\\}")
+                          reporting requirement for CY 2023 (January 1, 2023-December 31, 2023).\\\\}")
         ) %>%
   rowwise() %>% 
   mutate(reasons=paste(na.omit(c(COVID, HCP, MEET.Asmt)),
