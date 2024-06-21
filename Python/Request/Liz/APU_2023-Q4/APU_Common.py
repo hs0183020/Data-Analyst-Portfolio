@@ -63,7 +63,7 @@ class Config:
     self.cmn_run_hosp = 1
 
     
-    self.cmn_qq = "Q" + str(cmn_q)
+    self.cmn_qq = "Q" + str(self.cmn_q)
     self.cmn_folder = str(self.cmn_yyyy) + "-" + str(self.cmn_qq) + " " + self.cycle
 
 Config_obj = Config()
