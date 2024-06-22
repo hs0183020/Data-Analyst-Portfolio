@@ -62,8 +62,19 @@ class Config:
     self.cmn_run_snf = 1
     self.cmn_run_hosp = 1
 
-    
+    #Alternate formats for year and quarter	
+    self.cmn_yy = self.cmn_yyyy[-2:]
+    print("[red]Note: cmn_yy= " + self.cmn_yy + "[/]")
     self.cmn_qq = "Q" + str(self.cmn_q)
-    self.cmn_folder = str(self.cmn_yyyy) + "-" + str(self.cmn_qq) + " " + self.cycle
+    print("[red]Note: cmn_qq= " + self.cmn_qq + "[/]")
+    self.cmn_yy_hosp = self.cmn_yy_hosp[-2:]
+    print("[red]Note: cmn_yy_hosp= " + self.cmn_yy_hosp + "[/]")
+    self.cmn_qq_hosp = "Q" + str(self.cmn_q_hosp)
+    print("[red]Note: cmn_qq_hosp= " + self.cmn_qq_hosp + "[/]")
 
+    #Workbench folder for this reporting cycle
+    self.cmn_folder = str(self.cmn_yyyy) + "-" + str(self.cmn_qq) + " " + self.cycle
+    print("[red]Note: cmn_folder= " + self.cmn_folder + "[/]")
+
+    
 Config_obj = Config()
