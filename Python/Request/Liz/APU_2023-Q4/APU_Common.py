@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from rich import print
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class Config:
   def __init__(self):
@@ -77,18 +77,27 @@ class Config:
     self.cmn_folder = self.cmn_yyyy + "-" + self.cmn_qq + " " + self.cycle
     print("[red]Note: cmn_folder= " + self.cmn_folder + "[/]")
 
-    
+    #Data extract start dates in Hive format
     self.cmn_qtr_start_hive = datetime.strptime(self.cmn_qtr_start, "%d%b%Y").strftime("%Y-%m-%d")
     print("[red]Note: cmn_qtr_start_hive= " + self.cmn_qtr_start_hive + "[/]")
-    
     self.cmn_qtr_end_hive = datetime.strptime(self.cmn_qtr_end, "%d%b%Y").strftime("%Y-%m-%d")
     print("[red]Note: cmn_qtr_end_hive= " + self.cmn_qtr_end_hive + "[/]")
     
+    #hospice pulls from beginning of reporting year to end of current quarter
     self.cmn_qtr_start_hive_hosp = datetime.strptime(self.cmn_report_start_hosp, "%d%b%Y").strftime("%Y-%m-%d")
     print("[red]Note: cmn_qtr_start_hive_hosp= " + self.cmn_qtr_start_hive_hosp + "[/]")
-    
     self.cmn_qtr_end_hive_hosp = datetime.strptime(self.cmn_qtr_end_hosp, "%d%b%Y").strftime("%Y-%m-%d")
     print("[red]Note: cmn_qtr_end_hive_hosp= " + self.cmn_qtr_end_hive_hosp + "[/]")
+    
+    #Submission cutoff date
+    self.cmn_submit_cutoff_hive = datetime.strptime(self.cmn_submit_cutoff, "%d%b%Y").strftime("%Y-%m-%d")
+    print("[red]Note: cmn_submit_cutoff_hive= " + self.cmn_submit_cutoff_hive + "[/]")
+    
+    #Tiein cutoff -- providers with tiein >= cutoff are OPD
+    self.cmn_tiein_cutoff = (datetime.strptime(self.cmn_report_end, "%d%b%Y") + timedelta(days=1)).strftime("%d%b%Y").upper()
+    print("[red]Note: cmn_tiein_cutoff= " + self.cmn_tiein_cutoff + "[/]")
+    #Note that we don't need a tiein cutoff for Hospice...
+    
     
     
 Config_obj = Config()
